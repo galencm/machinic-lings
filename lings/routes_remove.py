@@ -7,7 +7,8 @@ import argparse
 from lings import routeling
 import sys
 import os
-def main(argv):
+
+def main():
     """
     Add route
     """
@@ -31,6 +32,3 @@ def main(argv):
             routeling.remove_route(args.route)
         except Exception as ex:
             print(ex)
-
-if __name__ == "__main__":
-    main(sys.argv)

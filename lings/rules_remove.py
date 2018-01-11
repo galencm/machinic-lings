@@ -7,7 +7,8 @@ import argparse
 from lings import ruling
 import sys
 import os
-def main(argv):
+
+def main():
     """
     Add rule
     """
@@ -31,6 +32,3 @@ def main(argv):
             ruling.remove_rule(args.rule)
         except Exception as ex:
             print(ex)
-
-if __name__ == "__main__":
-    main(sys.argv)
