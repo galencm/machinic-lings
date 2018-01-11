@@ -1,8 +1,13 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+# Copyright (c) 2017, Galen Curwen-McAdams
+
 from logzero import logger
 import redis
 import paho.mqtt.client as mosquitto 
 import sys
-#import local_tools
 import logzero
 import os
 import consul
