@@ -12,10 +12,10 @@ from logzero import logger
 import textwrap
 import operator
 import attr
-import routeling_basic_operations
+from lings import routeling_basic_operations
 import os
 import zerorpc
-import local_tools
+import consul
 import sys
 
 
@@ -29,10 +29,34 @@ except Exception as ex:
 #     channel = attr.ib()
 #     contents = attr.ib()
 #     errors= attr.ib()
+def lookup(service):
+    c = consul.Consul()
+    services = {k:v for (k,v) in c.agent.services().items() if k.startswith("_nomad")}
+    for k in services.keys():
+        if services[k]['Service'] == service:
+                service_ip,service_port = services[k]['Address'],services[k]['Port']
+                return service_ip,service_port
+                break
+    return None,None
+
+def fuzzy_lookup(service):
+    c = consul.Consul()
+    matched_services = []
+    services = {k:v for (k,v) in c.agent.services().items() if k.startswith("_nomad")}
+    for k in services.keys():
+        if service in services[k]['Service']:
+                sinfo = {
+                'ip':services[k]['Address'],
+                'port':services[k]['Port'],
+                'service':services[k]['Service']
+                }
+                matched_services.append(sinfo)
+    return matched_services
+
 
 path = os.path.dirname(os.path.realpath(__file__))
 routeling_metamodel = metamodel_from_file(os.path.join(path,'routeling.tx'))
-redis_ip,redis_port = local_tools.lookup('redis')
+redis_ip,redis_port = lookup('redis')
 r = redis.StrictRedis(host=redis_ip, port=str(redis_port),decode_responses=True)
 pubsub = r.pubsub()
 
@@ -228,14 +252,14 @@ def interpret_route(route,source_channel,payload):
                     #https://www.hashicorp.com/blog/replacing-queues-with-nomad-dispatch/
                     #TODO queue here...
 
-                    for service in local_tools.fuzzy_lookup('zerorpc-'):
+                    for service in fuzzy_lookup('zerorpc-'):
                         logger.info("trying service {}".format(service['service']))
                         zc = zerorpc.Client()
                         zc.connect("tcp://{}:{}".format(service['ip'],service['port']))
                         result = zc(route.action.lower(),*args)
                         logger.info(result)
                 else:
-                    for service in local_tools.fuzzy_lookup('zerorpc-'):
+                    for service in fuzzy_lookup('zerorpc-'):
                         try:
                             logger.info("trying service {}".format(service['service']))
                             zc = zerorpc.Client()
