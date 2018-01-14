@@ -35,11 +35,11 @@ except Exception as ex:
 mqtt_ip,mqtt_port = lookup('mqtt')
 redis_ip,redis_port = lookup('redis')
 
-logger.info("redis {}:{}".format(redis_ip,redis_port))
+logger.debug("redis {}:{}".format(redis_ip,redis_port))
 r = redis.StrictRedis(host=redis_ip, port=str(redis_port),decode_responses=True)
 pubsub = r.pubsub()
 
-logger.info("mqtt {}:{}".format(mqtt_ip,mqtt_port))
+logger.debug("mqtt {}:{}".format(mqtt_ip,mqtt_port))
 cli = mosquitto.Client()
 cli.connect(mqtt_ip, mqtt_port, 60)
 
