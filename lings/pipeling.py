@@ -173,32 +173,6 @@ def pipe(name,glworb_key,glworb_field,*args):
 
         #return 
 
-
-#was/will be pipe
-def old_pipe(name=None,dsl_string=None):
-    #pipe to mimic route call...
-    #TODO ponder
-    #could create an empty pipe if not found
-    empty_pipe = textwrap.dedent('''
-    pipe {} {{
-    startimg 
-    ocr ocr_results 
-    endimg 
-    }} 
-    '''.format(name))
-
-    if dsl_string is not None:
-        created,_ = add_pipe(dsl_string)
-        return get_pipe(created)
-
-    if name is not None:
-        p =  get_pipe(name)
-        if p is None:
-            created,_ = add_pipe(empty_pipe)
-            return get_pipe(created)   
-        else:
-            return p
-
 def get_pipes(query_pattern="*"):
     match_query = "pipe:{}:*".format(query_pattern)
     pipes = list(r.scan_iter(match=match_query))
