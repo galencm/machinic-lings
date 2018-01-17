@@ -25,22 +25,6 @@ try:
 except Exception as ex:
     print(ex)
 
-import sys
-for f in glob.glob('../**/pipeline_*.py'):
-    logger.info("{} matches pipe filter ".format(f))
-    path,pipe_package = os.path.split(os.path.abspath(f))
-    logger.info("adding {} to path".format(path))
-    sys.path.append(path)
-    logger.info("importing {}".format(pipe_package[:-3]))
-    module = importlib.import_module(pipe_package[:-3])
-    #module = importlib.import_module(f[:-3])
-    globals().update(
-        {k: v for (k, v) in module.__dict__.items() if  k.startswith('pipe_')}
-    )
-
-    logger.info({k: v for (k, v) in module.__dict__.items() if  k.startswith('pipe_')})
-
-#print([s for s in globals() if s.startswith("pipe_")])
 #change RouteMessage object to dict
 @attr.s 
 class RouteMessage():
@@ -128,16 +112,6 @@ def remove_pipe(name=None,dsl_string=None):
 
 
 def pipe(name,glworb_key,glworb_field,*args):
-
-    # for f in glob.glob('pipeline_*.py'):
-    #     print("globbing ",f)
-    #     module = importlib.import_module(f[:-3])
-    #     globals().update(
-    #         {k: v for (k, v) in module.__dict__.items() if  k.startswith('pipe_')}
-    #     )
-
-    #     logger.info({k: v for (k, v) in module.__dict__.items() if  k.startswith('pipe_')})
-
 
     #['prepareleft', 'bar', 'glworb_binary_key_contents']
     # pipename     glworb_id glworb_key
