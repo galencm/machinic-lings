@@ -198,30 +198,6 @@ def get_pipe(name):
             logger.warn(ex)
             return None
 
-#def rpc(call,*args):
-#    logger.info("mock rpc {}".format(call,args))
-
-def into_pipe(p,glworb_key,glworb_field_key):
-    logger.info("starting pipe for {} {}".format(glworb_key,glworb_field_key))
-    for step in p.pipe_steps:
-        args = [arg.arg for arg in step.args]
-
-        try:
-            if '_' in args:
-                args[args.index('_')] = glworb_key
-                logger.debug('{} substituted for _'.format(glworb_key))
-        except:
-            pass
-
-        if step.call == 'pipe':
-            into_pipe(pipe(args[0]),*args[1:])
-
-        else:
-            #cannot do one rpc call at a time since object
-            #will not be serialized
-            #look in same dir for functions?
-            rpc(step.call,*args)
-
 def compose(*functions):
     """Compose list of functions
 
