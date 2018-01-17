@@ -43,12 +43,6 @@ logger.debug("mqtt {}:{}".format(mqtt_ip,mqtt_port))
 cli = mosquitto.Client()
 cli.connect(mqtt_ip, mqtt_port, 60)
 
-
-
-
-
-
-
 def sendi(channel,message):
     internal_to_internal(channel,message)
 
