@@ -15,6 +15,7 @@ def main():
     parser = argparse.ArgumentParser(description=main.__doc__,formatter_class=argparse.RawDescriptionHelpFormatter)
     #parser.add_argument("pipe", help="",required=False )
     parser.add_argument("--pipe", required=False,help="string of pipe enclosed in double quotes")
+    parser.add_argument("--name", required=False,help="name of pipe")
     parser.add_argument("-f","--file", required=False,help="file of pipes 1 per line")
 
     args = parser.parse_args()
@@ -24,11 +25,16 @@ def main():
             with open(args.file,'r') as f:
                 for line in f.readlines():
                     try:
-                        pipeling.remove_pipe(line)
+                        pipeling.remove_pipe(dsl_string=line)
                     except Exception as ex:
                         print(ex)
     elif args.pipe:
         try:
-            pipeling.remove_pipe(args.pipe)
+            pipeling.remove_pipe(dsl_string=args.pipe)
+        except Exception as ex:
+            print(ex)
+    elif args.name:
+        try:
+            pipeling.remove_pipe(name=args.pipe)
         except Exception as ex:
             print(ex)
