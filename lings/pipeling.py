@@ -68,16 +68,22 @@ def add_pipe(dsl_string):
             Tuple: name, key of created pipe
     """
     #TODO add overwrite? ie if name is same and hash changes, delete others with same name first?
+
+    # unescape escaped newlines
+    dsl_string = dsl_string.replace("\\n","\n")
+    logger.info("add pipe from string: {}".format(repr(dsl_string)))
     try:
         pipe = pipeling_metamodel.model_from_str(dsl_string)
     except Exception as ex:
         logger.error("Failed to parse {} using {}".format(dsl_string,pipeling_metamodel))
         logger.error(ex)
         return None,None
+    logger.info("clearing existing: {}".format(pipe.name))
     remove_pipe(pipe.name)
     dsl_hash = hashlib.sha224(dsl_string.encode()).hexdigest()
     pipe_key = "pipe:{}:{}".format(pipe.name,dsl_hash)
     r.set(pipe_key,dsl_string)
+    logger.info("added pipe: {}".format(pipe_key))
     #some sort of success/failure return?
     return pipe.name,pipe_key
 
