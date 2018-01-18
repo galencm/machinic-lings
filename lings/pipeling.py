@@ -80,6 +80,10 @@ def add_pipe(dsl_string):
         return None,None
     logger.info("clearing existing: {}".format(pipe.name))
     remove_pipe(pipe.name)
+    for step in pipe.pipe_steps:
+        args = [arg.arg for arg in step.args]
+        logger.debug("{} {}".format(step.call,args))
+
     dsl_hash = hashlib.sha224(dsl_string.encode()).hexdigest()
     pipe_key = "pipe:{}:{}".format(pipe.name,dsl_hash)
     r.set(pipe_key,dsl_string)
