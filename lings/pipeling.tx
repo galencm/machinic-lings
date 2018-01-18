@@ -16,11 +16,7 @@ PipeStep:
 ;
 
 Step:
-    (annotation*=Annotation[' '] ':')? call=ID (args*=Arg[' ' eolterm])? 
-;
-
-Annotation:
-annotation=ID
+    call=ID (args*=Arg[' ' eolterm])?
 ;
 
 Arg:
