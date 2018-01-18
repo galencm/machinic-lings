@@ -146,20 +146,32 @@ def remove_route(dsl_string):
     else:
         logger.debug("no routes to remove matching {}".format(match_query))
 
-def get_routes(query_pattern="*"):
-    match_query = "route:*:{}".format(query_pattern)
+def get_routes(query_pattern="*", raw=False):
+
+    match_query = "route:{}".format(query_pattern)
     routes = list(r.scan_iter(match=match_query))
+    if raw is True:
+        routes = [s.split(":")[3] for s in routes]
+        return routes
+    else:
+        logger.info(routes)
+        routes = [s.split(":")[3] for s in routes]
+        return [get_route(route_hash=r) for r in routes if get_route(route_hash=r) is not None]
+
     return routes
 
-
-def get_route(dsl_string):
+def get_route(dsl_string=None, route_hash=None, raw=False):
     #names / hash could be different is pipe1:hash1 pipe1:hash2
     #for now only return first result
-    #if dsl_string != "*":
-    dsl_hash = hashlib.sha224(dsl_string.encode()).hexdigest()
-    #else:
-    #    dsl_hash = dsl_string
-    match_query = "route:*:{}".format(dsl_hash)
+
+    if dsl_string is not None:
+        dsl_hash = hashlib.sha224(dsl_string.encode()).hexdigest()
+
+    if route_hash is not None:
+        dsl_hash = route_hash
+
+    match_query = "route:*:*:{}".format(dsl_hash)
+    logger.debug(match_query)
     try:
         routes = list(r.scan_iter(match=match_query))[0]
     except IndexError as ex:
@@ -171,10 +183,15 @@ def get_route(dsl_string):
     if stored_route:
         try:
             route = routeling_metamodel.model_from_str(stored_route)
-            return route
+            if raw is True:
+                return stored_route
+            else:
+                return route
         except Exception as ex:
             logger.warn(ex)
             return None
+    else:
+        return None
 
 def interpret_route(route,source_channel,payload):
     """Parse route rule(s) and route payload
