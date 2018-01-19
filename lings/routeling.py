@@ -193,6 +193,97 @@ def get_route(dsl_string=None, route_hash=None, raw=False):
     else:
         return None
 
+def comparator_symbol_to_string(comparator):
+    if comparator == "<":
+        result = "less than"
+    elif comparator == ">":
+        result =  "greater than"
+    elif comparator == "<=":
+        result =  "less than or equal to"
+    elif comparator == ">=":
+        result =  "greater than or equal to"
+    elif comparator == "!=":
+        result =  "does not equal"
+    elif comparator == "==":
+        result =  "equals"
+    else:
+        result = None
+    return result
+
+def route_xml2str(xml=None,raw=False):
+    # placeholder
+    # this needs to be generated when the ling
+    # model is defined so it can use the same
+    # processing as gsl
+    pass
+
+def route_str2xml(dsl_string=None,route_hash=None,raw=False):
+    # This couples xml generation to the xml model used by gsl
+    # If the model changes so will this code. There may also
+    # be situations where reconstruction is not possible, since a
+    # benefit of the model is its flexibility in specification and
+    # synax.
+    #
+    # This is prototyping for lingen: use an xml model to define
+    # a dsl (ling) which gsl outputs:
+    #
+    # * a python package structure
+    #   * a textx .tx file
+    #   * stub functions, including this one as defined in model
+    #   * entry poing cli tools: *-add, *-run, *-remove, *-get, *-xml2str
+    #   * generated tests
+    # * a file that can be easily run as rpc service to be included with
+    #   machines: for example, see 'pipe'
+    #
+    # register entrypoints using lings as toplevel ie: lings-fooling-add
+    #
+    # Then when xml model changes, regenerate ling code...
+
+    # example route model:
+    # <route trigger="/foo" call="create_glworb">
+    #     <conditional type="less than or equal" value=".4" />
+    #     <conditional type="greater than or equal" value="1" />
+    #     <argument value="{'payload'}" />
+    #     <argument value="{'from'}" />
+    # </route>
+
+    from lxml import etree
+
+    if dsl_string:
+        # unescape escaped newlines if from shell
+        dsl_string = dsl_string.replace("\\n","\n")
+        # peculiarity of route implementation, expects
+        # to end with newline, will change hashes if not
+        # used
+        if not dsl_string.endswith("\n"):
+            dsl_string+="\n"
+
+    # pass both, None value will be ignored
+    route = get_route(dsl_string=dsl_string,route_hash=route_hash)
+
+    # a route was not found in db and dsl string
+    # passed, try to parse dsl string...
+    if not route and dsl_string:
+        route = routeling_metamodel.model_from_str(dsl_string)
+
+    for r in route.route_rules:
+        print(r)
+        root = etree.Element("route",trigger=r.channel,call=r.action)
+        if r.left_compare:
+            root.append( etree.Element("conditional",type=comparator_symbol_to_string(r.left_compare.comparator_symbol.symbol),
+                                                    value=r.left_compare.comparator_value) )
+        if r.right_compare:
+            root.append( etree.Element("conditional",type=comparator_symbol_to_string(r.right_compare.comparator_symbol.symbol),
+                                                    value=r.right_compare.comparator_value) )
+        if r.args:
+            for arg in r.args:
+                root.append( etree.Element("argument",value=arg.arg) )
+
+    if raw is True:
+        return etree.tostring(root, pretty_print=True).decode()
+    else:
+        return root
+
 def interpret_route(route,source_channel,payload):
     """Parse route rule(s) and route payload
 

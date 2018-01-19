@@ -191,6 +191,50 @@ def get_pipe(name,raw=False):
             logger.warn(ex)
             return None
 
+def pipe_xml2str(xml=None,raw=False):
+    # placeholder
+    # this needs to be generated when the pipe
+    # model is defined so it can use the same
+    # processing as gsl
+    pass
+
+def pipe_str2xml(dsl_string=None,name=None,raw=False):
+
+    if dsl_string is not None:
+        try:
+            pipe = pipeling_metamodel.model_from_str(dsl_string)
+        except Exception as ex:
+            logger.error(ex)
+
+    if name is not None:
+        pipe = get_pipe(name=name)
+
+    # see notes in routeling on lingen
+    from lxml import etree
+
+    # example xml:
+    # <sequence name="preprocess">
+    #     <step call="rotate" description="rotate stuff" prefix="img_">
+    #         <argument value="90" />
+    #     </step>
+    #     <step call="ocr" description="rotate stuff" prefix="img_">
+    #         <argument value="ocr_key" />
+    #     </step>
+    # </sequence>
+
+    root = etree.Element("sequence",name=pipe.name)
+    for step in pipe.pipe_steps:
+        #root.append( etree.Element("step",call=step.call) )
+        s = etree.SubElement(root, "step",call=step.call)
+        for arg in step.args:
+            s.append( etree.Element("argument",value=str(arg.arg))  )
+
+    if raw is True:
+        return etree.tostring(root, pretty_print=True).decode()
+    else:
+        return root
+
+
 def compose(*functions):
     """Compose list of functions
 
