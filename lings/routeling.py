@@ -55,6 +55,24 @@ redis_ip,redis_port = lookup('redis')
 r = redis.StrictRedis(host=redis_ip, port=str(redis_port),decode_responses=True)
 pubsub = r.pubsub()
 
+def route_signal(channel="",payload=""):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # make function name formattable
+            # using {function}
+            kwargs['function'] = func.__name__
+            #print(inspect.getargspec(func))
+            signal_channel = channel.format(**locals()['kwargs'])
+            signal_payload = payload.format(**locals()['kwargs'])
+            r.publish(signal_channel,signal_payload)
+            #r.publish(func.__name__,args)
+            # cleanup 'function' from kwargs
+            del kwargs['function']
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
 def find_route(source_channel=None,route_hash=None, contents=None):
     if source_channel is None or source_channel == '':
         source_channel = "*"
