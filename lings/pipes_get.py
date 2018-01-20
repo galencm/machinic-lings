@@ -20,6 +20,7 @@ def main():
     parser.add_argument("pipe_name", default=None, nargs='?', help = "pipe name")
     parser.add_argument('--name', default=None, help="get pipe by name")
     parser.add_argument('--pattern', help="get pipes by pattern ( '*' matches all )")
+    parser.add_argument('-v', '--verbose', action="store_true", help="verbose")
 
     args = parser.parse_args()
     # use this to allow either
@@ -39,5 +40,9 @@ def main():
         print(pipeling.get_pipe(args.name,raw=True))
 
     if args.pattern is not None:
-        for pipe in pipeling.get_pipes(args.pattern,raw=True):
+        print()
+        for pipe in pipeling.get_pipes(args.pattern,raw=True,verbose=args.verbose):
+            if args.verbose:
+                print(pipe)
             print(pipeling.get_pipe(pipe,raw=True))
+            print()

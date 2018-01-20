@@ -157,11 +157,13 @@ def pipe(name,glworb_key,glworb_field,*args):
 
         #return 
 
-def get_pipes(query_pattern="*",raw=False):
+def get_pipes(query_pattern="*",raw=False, verbose=False):
     match_query = "pipe:{}:*".format(query_pattern)
     pipes = list(r.scan_iter(match=match_query))
     # pipe:<name>:<contents hash>
-    pipes = [s.split(":")[1] for s in pipes]
+    if verbose is False:
+        pipes = [s.split(":")[1] for s in pipes]
+
     if raw is True:
         return pipes
     else:
@@ -171,7 +173,11 @@ def get_pipes(query_pattern="*",raw=False):
 def get_pipe(name,raw=False):
     #names / hash could be different is pipe1:hash1 pipe1:hash2
     #for now only return first result
-    match_query = "pipe:{}:*".format(name)
+    if not name.startswith("pipe:"):
+        match_query = "pipe:{}:*".format(name)
+    else:
+        match_query = "{}".format(name)
+
     try:
         pipes = list(r.scan_iter(match=match_query))[0]
     except IndexError as ex:
@@ -179,7 +185,7 @@ def get_pipe(name,raw=False):
         return None
 
     stored_pipe = r.get(pipes)
-    logger.info(match_query)
+    #logger.info(match_query)
     if stored_pipe:
         try:
             pipe = pipeling_metamodel.model_from_str(stored_pipe)
