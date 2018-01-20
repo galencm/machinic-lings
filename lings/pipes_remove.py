@@ -13,12 +13,15 @@ def main():
     Add pipe
     """
     parser = argparse.ArgumentParser(description=main.__doc__,formatter_class=argparse.RawDescriptionHelpFormatter)
-    #parser.add_argument("pipe", help="",required=False )
+    parser.add_argument("pipe_name", default=None, nargs='?', help = "pipe name")
     parser.add_argument("--pipe", required=False,help="string of pipe enclosed in double quotes")
     parser.add_argument("--name", required=False,help="name of pipe")
     parser.add_argument("-f","--file", required=False,help="file of pipes 1 per line")
 
     args = parser.parse_args()
+
+    if args.pipe_name is not None:
+        args.name = args.pipe_name
 
     if args.file:
         if os.path.isfile(args.file):

@@ -14,9 +14,14 @@ def main():
     """
     parser = argparse.ArgumentParser(description=main.__doc__,formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('name',  help="name of pipe")
-    parser.add_argument('key_name', help="name of key to use as context for pipe")
+    parser.add_argument('uuid', help="uuid or hash to use as context for pipe")
     parser.add_argument('args', nargs='*', default=[], help='arguments for pipe')
-    
+    parser.add_argument('--prefix', default="glworb:", help='key prefix')
+
     args = parser.parse_args()
+
+    # prepend prefix if needed
+    if not args.name.startswith(args.prefix):
+        args.name = args.prefix + args.name
 
     pipeling.pipe(args.name, args.context_name, *args.args)
