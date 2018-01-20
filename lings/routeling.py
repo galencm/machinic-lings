@@ -418,16 +418,3 @@ def comparate(comparator,a,b,try_to_cast=True):
 
     logger.debug("{a} {symbol} {b} = {result}".format(a=a,b=b,symbol=comparator,result=result))
     return result
-
-
-## ##
-
-#import route_funcs
-
-#comparisons:
-#comparator = channelname pointer(lookup) | float | string 
-# (left_comparator <) payload                           check
-# (left_comparator <) payload (< right_comparator)      check 
-#                     payload (< right_comparator)      check
-#                     payload                           True
-
