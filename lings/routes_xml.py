@@ -13,10 +13,15 @@ def main():
     xml route
     """
     parser = argparse.ArgumentParser(description=main.__doc__,formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("route_name", default=None, nargs='?', help = "route name")
     parser.add_argument('--name', default=None, help="get route by hash name")
     parser.add_argument('--route', default=None, help="string of route enclosed in double quotes")
 
     args = parser.parse_args()
+
+    if args.route_name is not None:
+        args.name = args.route_name
+
     if args.name is None and args.route is None:
         parser.print_help()
 

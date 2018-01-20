@@ -13,11 +13,15 @@ def main():
     Get route
     """
     parser = argparse.ArgumentParser(description=main.__doc__,formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("route_name", default=None, nargs='?', help = "route name")
     parser.add_argument('--name', default=None, help="get route by hash name")
-    parser.add_argument('--pattern', help="get routes by pattern ( '*' matches all )")
+    parser.add_argument('--pattern', default='*', help="get routes by pattern ( '*' matches all )")
 
     args = parser.parse_args()
     
+    if args.route_name is not None:
+        args.name = args.route_name
+
     if args.name is None and args.pattern is None:
         parser.print_help()
 
