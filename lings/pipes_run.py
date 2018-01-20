@@ -20,8 +20,8 @@ def main():
 
     args = parser.parse_args()
 
-    # prepend prefix if needed
-    if not args.name.startswith(args.prefix):
-        args.name = args.prefix + args.name
+    # prepend prefix to uuid if needed
+    if not args.uuid.startswith(args.prefix):
+        args.uuid = args.prefix + args.uuid
 
-    pipeling.pipe(args.name, args.context_name, *args.args)
+    pipeling.pipe(args.name, args.uuid, *args.args)

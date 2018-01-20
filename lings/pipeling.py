@@ -50,11 +50,22 @@ try:
 except Exception as ex:
     print(ex)
 
+def fuzzy_lookup(service):
+    c = consul.Consul()
+    matched_services = []
+    services = {k:v for (k,v) in c.agent.services().items() if k.startswith("_nomad")}
+    for k in services.keys():
+        if service in services[k]['Service']:
+                sinfo = {
+                'ip':services[k]['Address'],
+                'port':services[k]['Port'],
+                'service':services[k]['Service']
+                }
+                matched_services.append(sinfo)
+    return matched_services
+
 redis_ip,redis_port = lookup('redis')
 
-#mqtt_ip,mqtt_port = lookup('mqtt')
-
-#redis_ip,redis_port = local_tools.lookup('redis')
 r = redis.StrictRedis(host=redis_ip, port=str(redis_port),decode_responses=True)
 pubsub = r.pubsub()
 
@@ -121,41 +132,57 @@ def remove_pipe(name=None,dsl_string=None):
         logger.info("no pipes to remove matching {}".format(match_query))
 
 
-def pipe(name,glworb_key,glworb_field,*args):
+def pipe(name,glworb_key,*args):
 
-    #['prepareleft', 'bar', 'glworb_binary_key_contents']
-    # pipename     glworb_id glworb_key
+    logger.debug("{} {} {}".format(name,glworb_key,args))
     p = get_pipe(name)
-    logger.info("pipe: {} {}".format(p,name))
+    logger.info("pipe: {} {}".format(name, p))
+    logger.info("starting pipe: {} for {}".format(name, glworb_key))
 
-    #def pipe_starti(glworb_uuid,glworb_key,prefix="glworb:",*args):
-
-    logger.info("starting pipe for {} {}".format(glworb_key,glworb_field))
-    piped_obj = None
+    context = {'uuid':glworb_key,
+                'key':'image_binary_key',
+                'binary_prefix':'glworb_binary:'}
     
-    #multiprocessing? process_steps(target=)
     for step in p.pipe_steps:
         args = [arg.arg for arg in step.args]
-        logger.info("{}{}".format(step,args))
-        try:
-            if '_' in args:
-                args[args.index('_')] = glworb_key
-                logger.debug('{} substituted for _'.format(glworb_key))
-        except Exception as ex:
-            print(ex)
-            pass
+        logger.debug("step: {} args: {}".format(step.call,args))
 
         if step.call == 'pipe':
-            pipe((args[0]),*args[1:])
-        elif 'start' in step.call:
-            #special first call, move to objects?
-            #logger.info([s for s in globals() if s.startswith("pipe_")])
-            piped_obj = globals()["pipe_"+step.call](glworb_key,glworb_field,*args)
-            #    path = os.path.dirname(os.path.realpath(__file__))
+            logger.info("calling func: {} with context: {} args: {}".format(args[0], context, args[1:]))
+            pipe(args[0], glworb_key, *args[1:])
         else:
-            piped_obj = globals()["pipe_"+step.call](piped_obj,*args)
+            logger.info("calling func: {} with context: {} args: {}".format(step.call, context, args))
+            result = rpc_any(step.call, context, args)
+            if result:
+                context = result
+        # try:
+        #     if '_' in args:
+        #         args[args.index('_')] = glworb_key
+        #         logger.debug('{} substituted for _'.format(glworb_key))
+        # except Exception as ex:
+        #     print(ex)
+        #     pass
+        # if step.call == 'pipe':
+        #     pipe((args[0]),*args[1:])
+        # else:
+        #     context =
 
-        #return 
+def rpc_any(func, context, call_args):
+    import zerorpc
+    for service in fuzzy_lookup("zerorpc-"):
+        try:
+            result = None
+            logger.info("trying service {}".format(service))
+            print("tcp://{}:{}".format(service['ip'],service['port']))
+            logger.info("call -> func: {} context: {} args: {}".format(func, context, call_args))
+            zc = zerorpc.Client()
+            zc.connect("tcp://{}:{}".format(service['ip'],service['port']))
+            result = zc(func, context, *call_args)
+            if result is not None:
+                logger.info("Success!")
+            logger.info("call result: {}".format(result))
+        except Exception as ex:
+            logger.warn(ex)
 
 def get_pipes(query_pattern="*",raw=False, verbose=False):
     match_query = "pipe:{}:*".format(query_pattern)
