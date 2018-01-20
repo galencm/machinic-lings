@@ -10,7 +10,6 @@ import redis
 import hashlib
 from logzero import logger
 import textwrap
-import attr
 import os
 import functools
 import glob
@@ -24,13 +23,6 @@ try:
     logzero.logfile("/tmp/{}.log".format(os.path.basename(sys.argv[0])))
 except Exception as ex:
     print(ex)
-
-#change RouteMessage object to dict
-@attr.s 
-class RouteMessage():
-    channel = attr.ib()
-    contents = attr.ib()
-    errors= attr.ib()
 
 path = os.path.dirname(os.path.realpath(__file__))
 pipeling_metamodel = metamodel_from_file(os.path.join(path,'pipeling.tx'))

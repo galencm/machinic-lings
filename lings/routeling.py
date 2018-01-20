@@ -11,7 +11,6 @@ import hashlib
 from logzero import logger
 import textwrap
 import operator
-import attr
 from lings import routeling_basic_operations
 import os
 import zerorpc
@@ -24,11 +23,7 @@ try:
     logzero.logfile("/tmp/{}.log".format(os.path.basename(sys.argv[0])))
 except Exception as ex:
     print(ex)
-# @attr.s 
-# class RouteMessage():
-#     channel = attr.ib()
-#     contents = attr.ib()
-#     errors= attr.ib()
+
 def lookup(service):
     c = consul.Consul()
     services = {k:v for (k,v) in c.agent.services().items() if k.startswith("_nomad")}
@@ -339,7 +334,6 @@ def interpret_route(route,source_channel,payload):
                 #if route.action in builtins:
                 if hasattr(routeling_basic_operations,route.action.lower()):
                     #use dict instead of custom obj
-                    #rm = RouteMessage(source_channel,payload,'')
                     rm = {'channel':source_channel,
                           'contents':payload,
                           'errors':''
