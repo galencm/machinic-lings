@@ -16,6 +16,7 @@ import os
 import zerorpc
 import consul
 import sys
+from functools import wraps
 
 
 import logzero
