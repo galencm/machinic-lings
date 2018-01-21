@@ -30,6 +30,12 @@ def main():
     #
     # match query is constructed in get_pipe
     # but it would be useful to pass entire hash in too...
+
+    # if no args, list all pipes
+    if args.pipe_name is  None and args.name is None:
+        args.pattern = '*'
+        args.verbose = True
+        
     if args.pipe_name is not None:
         args.name = args.pipe_name
 
