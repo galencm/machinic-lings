@@ -17,9 +17,9 @@ import zerorpc
 import consul
 import sys
 from functools import wraps
-
-
+import inspect
 import logzero
+
 try:
     logzero.logfile("/tmp/{}.log".format(os.path.basename(sys.argv[0])))
 except Exception as ex:
@@ -56,20 +56,23 @@ redis_ip,redis_port = lookup('redis')
 r = redis.StrictRedis(host=redis_ip, port=str(redis_port),decode_responses=True)
 pubsub = r.pubsub()
 
-def route_signal(channel="",payload=""):
+def route_signal(channel="",message=""):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
+            # print(inspect.getargspec(func))
+            # print(inspect.signature(func))
+            # print(locals())
+            subs = dict(zip(inspect.getargspec(func).args, list(locals()['args'])))
             # make function name formattable
-            # using {function}
-            kwargs['function'] = func.__name__
-            #print(inspect.getargspec(func))
-            signal_channel = channel.format(**locals()['kwargs'])
-            signal_payload = payload.format(**locals()['kwargs'])
-            r.publish(signal_channel,signal_payload)
-            #r.publish(func.__name__,args)
-            # cleanup 'function' from kwargs
-            del kwargs['function']
+            # using {env_function}
+            subs.update({'env_function' : func.__name__})
+            subs.update(**locals()['kwargs'])
+            signal_channel = channel.format(**subs)
+            signal_message = message.format(**subs)
+            # publish formatted strings
+            r.publish(signal_channel,signal_message)
+            del subs
             return func(*args, **kwargs)
         return wrapper
     return decorator
