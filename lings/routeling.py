@@ -352,10 +352,8 @@ def interpret_route(route,source_channel,payload):
                     except Exception as ex:
                         print(ex)
 
-                #builtins = ['mapii','mapix','mapxi','mapxx']
-                #if route.action in builtins:
+                #['mapii','mapix','mapxi','mapxx']
                 if hasattr(routeling_basic_operations,route.action.lower()):
-                    #use dict instead of custom obj
                     rm = {'channel':source_channel,
                           'contents':payload,
                           'errors':''
@@ -368,14 +366,6 @@ def interpret_route(route,source_channel,payload):
                         logger.warn(ex)
                 elif route.action == 'pipe':
                     logger.info("PIPE {} {}".format(route.action,args))
-                    #with pipe assume message is a glworb id?
-                    #rargs = [] + rargs
-                    #put into a todo queue?
-                    #query route.action.lower() for rpc address
-                    #another option:
-                    #https://www.hashicorp.com/blog/replacing-queues-with-nomad-dispatch/
-                    #TODO queue here...
-
                     for service in fuzzy_lookup('zerorpc-'):
                         logger.info("trying service {}".format(service['service']))
                         zc = zerorpc.Client()
@@ -393,12 +383,6 @@ def interpret_route(route,source_channel,payload):
                         except Exception as ex:
                             print(ex)
 
-                    #rpc_ip,rpc_port = local_tools.lookup('zerorpc-image')
-                    # zc = zerorpc.Client()
-                    # zc.connect("tcp://{}:{}".format(rpc_ip,rpc_port))
-                    # result = zc(route.action.lower(),*args)
-                    # logger.info(result)
-                    #rpc(*rargs)
         except Exception as ex:
             logger.warn(ex)
 
