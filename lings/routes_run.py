@@ -5,6 +5,7 @@
 
 import argparse
 from lings import routeling
+from lings import routeling_basic_operations as route_ops
 import sys
 import os
 
@@ -24,10 +25,11 @@ def main():
 
     parser = argparse.ArgumentParser(description=main.__doc__,formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('route_name',  help="hash of route")
-    parser.add_argument('uuid', help="uuid or hash to use as context for route")
-    parser.add_argument('args', nargs='*', default=[], help='arguments for route')
-    parser.add_argument('--prefix', default="glworb:", help='key prefix')
+    parser.add_argument('--message', default="", help="message to send")
+    parser.add_argument('--uuid', help="uuid or hash to send as context for route")
+    parser.add_argument('--prefix', default="glworb:", help='uuid prefix')
     parser.add_argument('--name', default=None, help='route hash')
+    parser.add_argument('--protocol',default='redis', choices=('redis','mqtt'), help='protocol to use for publishing')
 
     args = parser.parse_args()
 
@@ -35,13 +37,15 @@ def main():
         args.name = args.route_name
 
     # prepend prefix to uuid if needed
-    if not args.uuid.startswith(args.prefix):
+    if args.uuid and not args.uuid.startswith(args.prefix):
         args.uuid = args.prefix + args.uuid
 
     # get startpoint
     route = routeling.get_route(route_hash=args.name)
     for r in route.route_rules:
-        print(r.channel)
-        #route_entrypoint = r.channel
-        #send channel, payload
-        #send(route_entrypoint,args.uuid)
+        print("sending message: {} on channel: {}".format(args.message, r.channel))
+        if args.protocol == 'redis':
+            route_ops.internal_to_internal(r.channel, args.message)
+        elif args.protocol == 'mqtt':
+            route_ops.external_to_external(r.channel, args.message)
+
