@@ -56,7 +56,7 @@ redis_ip,redis_port = lookup('redis')
 r = redis.StrictRedis(host=redis_ip, port=str(redis_port),decode_responses=True)
 pubsub = r.pubsub()
 
-def route_signal(channel="",message=""):
+def route_broadcast(channel="",message=""):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
