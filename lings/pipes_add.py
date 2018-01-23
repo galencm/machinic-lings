@@ -13,7 +13,7 @@ def main():
     Add pipe
     """
     parser = argparse.ArgumentParser(description=main.__doc__,formatter_class=argparse.RawDescriptionHelpFormatter)
-    #parser.add_argument("pipe", help="",required=False )
+    parser.add_argument("pipe_name", default=None, nargs='?', help="",)
     parser.add_argument("--pipe", required=False,help="string of pipe enclosed in double quotes")
     parser.add_argument("-f","--file", required=False,help="file of pipes 1 per line")
 
@@ -30,5 +30,10 @@ def main():
     elif args.pipe:
         try:
             pipeling.add_pipe(args.pipe)
+        except Exception as ex:
+            print(ex)
+    elif args.pipe_name is not None:
+        try:
+            pipeling.add_pipe("pipe {} {{}}".format(args.pipe_name))
         except Exception as ex:
             print(ex)

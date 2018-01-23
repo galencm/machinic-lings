@@ -38,6 +38,6 @@ def main():
             print(ex)
     elif args.name:
         try:
-            pipeling.remove_pipe(name=args.pipe)
+            pipeling.remove_pipe(name=args.pipe_name)
         except Exception as ex:
             print(ex)
