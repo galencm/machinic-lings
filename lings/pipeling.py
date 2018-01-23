@@ -223,7 +223,7 @@ def pipe_xml2str(xml=None,raw=False):
     # processing as gsl
     pass
 
-def pipe_str2xml(dsl_string=None,name=None,raw=False):
+def pipe_str2xml(dsl_string=None,name=None,raw=False,file=None):
 
     if dsl_string is not None:
         try:
@@ -253,6 +253,17 @@ def pipe_str2xml(dsl_string=None,name=None,raw=False):
         s = etree.SubElement(root, "step",call=step.call)
         for arg in step.args:
             s.append( etree.Element("argument",value=str(arg.arg))  )
+
+    if file is not None:
+        # remove_blank_text to reformat on output
+        # however seems to only indent 2 spaces
+        # parser = etree.XMLParser(remove_blank_text=True)
+        # TODO look into xlst style transforms
+        parser = etree.XMLParser()
+        file_tree = etree.parse(file, parser)
+        file_root = file_tree.getroot()
+        file_root.append(root)
+        file_tree.write(file, pretty_print=True)
 
     if raw is True:
         return etree.tostring(root, pretty_print=True).decode()

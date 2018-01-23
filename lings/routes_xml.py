@@ -16,6 +16,7 @@ def main():
     parser.add_argument("route_name", default=None, nargs='?', help = "route name")
     parser.add_argument('--name', default=None, help="get route by hash name")
     parser.add_argument('--route', default=None, help="string of route enclosed in double quotes")
+    parser.add_argument('--file', default=None, help="xml file to write output into")
 
     args = parser.parse_args()
 

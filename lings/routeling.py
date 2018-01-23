@@ -55,7 +55,7 @@ routeling_metamodel = metamodel_from_file(os.path.join(path,'routeling.tx'))
 redis_ip,redis_port = lookup('redis')
 r = redis.StrictRedis(host=redis_ip, port=str(redis_port),decode_responses=True)
 pubsub = r.pubsub()
-
+# just @broadcast ?
 def route_broadcast(channel="",message=""):
     def decorator(func):
         @wraps(func)
@@ -63,6 +63,7 @@ def route_broadcast(channel="",message=""):
             # print(inspect.getargspec(func))
             # print(inspect.signature(func))
             # print(locals())
+            print(inspect.getmodule(func))
             subs = dict(zip(inspect.getargspec(func).args, list(locals()['args'])))
             # make function name formattable
             # using {env_function}
@@ -234,7 +235,7 @@ def route_xml2str(xml=None,raw=False):
     # processing as gsl
     pass
 
-def route_str2xml(dsl_string=None,route_hash=None,raw=False):
+def route_str2xml(dsl_string=None,route_hash=None,raw=False,file=None):
     # This couples xml generation to the xml model used by gsl
     # If the model changes so will this code. There may also
     # be situations where reconstruction is not possible, since a
@@ -295,6 +296,17 @@ def route_str2xml(dsl_string=None,route_hash=None,raw=False):
         if r.args:
             for arg in r.args:
                 root.append( etree.Element("argument",value=arg.arg) )
+
+    if file is not None:
+        # remove_blank_text to reformat on output
+        # however seems to only indent 2 spaces
+        # parser = etree.XMLParser(remove_blank_text=True)
+        # TODO look into xlst style transforms
+        parser = etree.XMLParser()
+        file_tree = etree.parse(file, parser)
+        file_root = file_tree.getroot()
+        file_root.append(root)
+        file_tree.write(file, pretty_print=True)
 
     if raw is True:
         return etree.tostring(root, pretty_print=True).decode()

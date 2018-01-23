@@ -16,6 +16,7 @@ def main():
     parser.add_argument("pipe_name", default=None, nargs='?', help = "pipe name")
     parser.add_argument('--name', default=None, help="get pipe by name")
     parser.add_argument('--pipe', default=None, help="string of pipe enclosed in double quotes")
+    parser.add_argument('--file', default=None, help="xml file to write output into")
 
     args = parser.parse_args()
 
@@ -26,7 +27,7 @@ def main():
         parser.print_help()
 
     if args.name is not None:
-        print(pipeling.pipe_str2xml(name=args.name,raw=True))
+        print(pipeling.pipe_str2xml(name=args.name,raw=True, file=args.file))
 
     if args.pipe is not None:
-        print(pipeling.pipe_str2xml(dsl_string=args.pipe,raw=True))
+        print(pipeling.pipe_str2xml(dsl_string=args.pipe,raw=True, file=args.file))
