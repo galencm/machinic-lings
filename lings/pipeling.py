@@ -62,7 +62,7 @@ r = redis.StrictRedis(host=redis_ip, port=str(redis_port),decode_responses=True)
 pubsub = r.pubsub()
 
 
-def add_pipe(dsl_string):
+def add_pipe(dsl_string, expire=0):
     """
         Args:
             dsl_string(str): A string that using pipeling grammar
@@ -91,6 +91,9 @@ def add_pipe(dsl_string):
     pipe_key = "pipe:{}:{}".format(pipe.name,dsl_hash)
     r.set(pipe_key,dsl_string)
     logger.info("added pipe: {}".format(pipe_key))
+    if expire > 0:
+        r.expire(pipe_key,expire)
+
     #some sort of success/failure return?
     return pipe.name,pipe_key
 
