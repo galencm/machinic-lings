@@ -62,7 +62,7 @@ r = redis.StrictRedis(host=redis_ip, port=str(redis_port),decode_responses=True)
 pubsub = r.pubsub()
 
 
-def add_pipe(dsl_string, expire=0):
+def add_pipe(dsl_string, expire=None):
     """
         Args:
             dsl_string(str): A string that using pipeling grammar
@@ -73,6 +73,9 @@ def add_pipe(dsl_string, expire=0):
     #TODO add overwrite? ie if name is same and hash changes, delete others with same name first?
 
     # unescape escaped newlines
+    if expire is None:
+        expire = 0
+
     dsl_string = dsl_string.replace("\\n","\n")
     logger.info("add pipe from string: {}".format(repr(dsl_string)))
     try:
@@ -93,6 +96,8 @@ def add_pipe(dsl_string, expire=0):
     logger.info("added pipe: {}".format(pipe_key))
     if expire > 0:
         r.expire(pipe_key,expire)
+        logger.info("expires in: {}".format(expire))
+        logger.info("ttl: {}".format(r.ttl(pipe_key)))
 
     #some sort of success/failure return?
     return pipe.name,pipe_key
@@ -131,7 +136,7 @@ def pipe(name,glworb_key,env=None,*args):
 
     if env is None:
         env = {}
-        
+
     logger.debug("{} {} {}".format(name,glworb_key,args))
     p = get_pipe(name)
     logger.info("pipe: {} {}".format(name, p))
