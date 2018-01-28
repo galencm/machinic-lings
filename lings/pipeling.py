@@ -127,8 +127,11 @@ def remove_pipe(name=None,dsl_string=None):
         logger.info("no pipes to remove matching {}".format(match_query))
 
 
-def pipe(name,glworb_key,*args):
+def pipe(name,glworb_key,env=None,*args):
 
+    if env is None:
+        env = {}
+        
     logger.debug("{} {} {}".format(name,glworb_key,args))
     p = get_pipe(name)
     logger.info("pipe: {} {}".format(name, p))
@@ -138,18 +141,29 @@ def pipe(name,glworb_key,*args):
                 'key':'image_binary_key',
                 'binary_prefix':'glworb_binary:'}
     
+    context.update(env)
+
     for step in p.pipe_steps:
-        args = [arg.arg for arg in step.args]
-        logger.debug("step: {} args: {}".format(step.call,args))
+        step_args = [arg.arg for arg in step.args]
+        logger.debug("step: {} args: {}".format(step.call,step_args))
 
         if step.call == 'pipe':
-            logger.info("calling func: {} with context: {} args: {}".format(args[0], context, args[1:]))
-            pipe(args[0], glworb_key, *args[1:])
+            logger.info("calling func: {} with context: {} args: {}".format(step_args[0], context, step_args[1:]))
+            pipe(step_args[0], glworb_key, *step_args[1:])
         else:
-            logger.info("calling func: {} with context: {} args: {}".format(step.call, context, args))
-            result = rpc_any(step.call, context, args)
+            logger.info("calling func: {} with context: {} args: {}".format(step.call, context, step_args))
+            result = rpc_any(step.call, context, step_args)
             if result:
                 context = result
+
+    # publish that pipe has completed 
+    delimiter = "/"
+    if delimiter == '/':
+        pipe_channel = "{delimiter}pipe{delimiter}{name}{delimiter}completed".format(delimiter=delimiter, name=name)
+    else:
+        pipe_channel = "pipe{delimiter}{name}{delimiter}completed".format(delimiter=delimiter, name=name)
+
+    r.publish(pipe_channel, glworb_key)
         # try:
         #     if '_' in args:
         #         args[args.index('_')] = glworb_key
@@ -177,6 +191,7 @@ def rpc_any(func, context, call_args):
                 logger.info("Success!")
             logger.info("call result: {}".format(result))
         except Exception as ex:
+            logger.warn("{}".format(service))
             logger.warn(ex)
 
 def get_pipes(query_pattern="*",raw=False, verbose=False):
