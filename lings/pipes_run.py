@@ -7,6 +7,7 @@ import argparse
 from lings import pipeling
 import sys
 import os
+import json
 
 def main():
     """
@@ -17,6 +18,7 @@ def main():
     parser.add_argument('uuid', help="uuid or hash to use as context for pipe")
     parser.add_argument('args', nargs='*', default=[], help='arguments for pipe')
     parser.add_argument('--prefix', default="glworb:", help='key prefix')
+    parser.add_argument('--context', type=json.loads, default={}, help='context dict, uses json.loads to parse')
 
     args = parser.parse_args()
 
@@ -24,4 +26,4 @@ def main():
     if not args.uuid.startswith(args.prefix):
         args.uuid = args.prefix + args.uuid
 
-    pipeling.pipe(args.name, args.uuid, *args.args)
+    pipeling.pipe(args.name, args.uuid, args.context, *args.args)
