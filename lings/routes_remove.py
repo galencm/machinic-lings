@@ -10,7 +10,7 @@ import os
 
 def main():
     """
-    Add route
+    Remove route
     """
     parser = argparse.ArgumentParser(description=main.__doc__,formatter_class=argparse.RawDescriptionHelpFormatter)
     #parser.add_argument("route", help="",required=False )
