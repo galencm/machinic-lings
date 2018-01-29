@@ -137,6 +137,15 @@ def pipe(name,glworb_key,env=None,*args):
     if env is None:
         env = {}
 
+    # if it looks like a key:value
+    # pair, add it to env dict
+    # use zzzz as delimiter until grammar modified
+    # nonsense values will not interfere
+    for arg in args:
+        if "zzzz" in arg:
+            k, v = arg.split("zzzz")
+            env[k] = v
+
     logger.debug("{} {} {}".format(name,glworb_key,args))
     p = get_pipe(name)
     logger.info("pipe: {} {}".format(name, p))
