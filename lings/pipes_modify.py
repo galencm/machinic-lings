@@ -38,6 +38,7 @@ def main():
     parser.add_argument('--copy', help="copy pipe to newname")
     parser.add_argument('--no-pretty', action='store_false', help="do not format output with line numbers or color")
     parser.add_argument('--preview', action='store_true', help="show pipe without modifying")
+    parser.add_argument("-x","--expire", type=int, default=0, required=False,help="temporary pipe, expires after specified seconds")
 
     args = parser.parse_args()
     
@@ -46,7 +47,7 @@ def main():
 
     if args.copy:
         pipe_to_modify = pipe_to_modify.replace(args.name,args.copy,1)
-        pipeling.add_pipe(pipe_to_modify)
+        pipeling.add_pipe(pipe_to_modify, expire=args.expire)
         print(pipe_to_modify)
         return
 
@@ -80,4 +81,4 @@ def main():
 
     print_to_terminal(pipe_to_modify,args.no_pretty)
 
-    pipeling.add_pipe("\n".join(pipe_to_modify))
+    pipeling.add_pipe("\n".join(pipe_to_modify), expire=args.expire)
