@@ -154,7 +154,10 @@ def pipe(name,glworb_key,env=None,*args):
     context = {'uuid':glworb_key,
                 'key':'image_binary_key',
                 'binary_prefix':'glworb_binary:'}
-    
+
+    logger.info("env: {}".format(env))
+    logger.info("context: {}".format(context))
+
     context.update(env)
 
     for step in p.pipe_steps:

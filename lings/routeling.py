@@ -379,7 +379,7 @@ def interpret_route(route,source_channel,payload):
                         logger.warn(ex)
                 elif route.action == 'pipe':
                     logger.info("PIPE {} {}".format(route.action,args))
-                    pipeling.pipe(args[0], payload, {}, args[1:])
+                    pipeling.pipe(args[0], payload, {}, *args[1:])
                     # for service in fuzzy_lookup('zerorpc-'):
                     #     logger.info("trying service {}".format(service['service']))
                     #     zc = zerorpc.Client()
