@@ -26,7 +26,7 @@ def main():
     parser.add_argument('--channels', default=["*"], nargs='+', help='channels to listen on. Unix-style pattern matching works')
 
     args = parser.parse_args()
-    print(args.channels)
+
     q = queue.Queue()
     gatherer_stop_signal = threading.Event()
     monitor_stop_signal = threading.Event()
@@ -41,13 +41,10 @@ def main():
 
     monitor_stop_signal.set()
     gatherer_stop_signal.set()
-    monitor_thread.join()
-
-    while not q.empty():
-        results.append(q.get())
-
+    # monitor_thread.join()
     for result in results:
         sys.stdout.write(result+'\n')
+        sys.stdout.flush()
 
 def timed_gather(pattern, channels, q, max_wait, stop_signal, this_stop):
     gatherer = threading.Thread(target=routeling.listen, args=(pattern, channels, q, stop_signal))
@@ -57,5 +54,3 @@ def timed_gather(pattern, channels, q, max_wait, stop_signal, this_stop):
         time.sleep(1)
         wait += 1
     stop_signal.set()
-
-main()
