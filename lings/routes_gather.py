@@ -35,8 +35,8 @@ def main():
     monitor_thread.start()
 
     results = []
-    while monitor_thread.isAlive() and len(results) < args.collect:
-        while not q.empty() and len(results) < args.collect:
+    while monitor_thread.isAlive() and (True if not args.collect else len(results) < args.collect):
+        while not q.empty() and (True if not args.collect else len(results) < args.collect):
             results.append(q.get())
 
     monitor_stop_signal.set()
