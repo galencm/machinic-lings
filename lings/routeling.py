@@ -19,6 +19,7 @@ import sys
 from functools import wraps
 import inspect
 import logzero
+import fnmatch
 
 try:
     logzero.logfile("/tmp/{}.log".format(os.path.basename(sys.argv[0])))
@@ -437,3 +438,15 @@ def comparate(comparator,a,b,try_to_cast=True):
 
     logger.debug("{a} {symbol} {b} = {result}".format(a=a,b=b,symbol=comparator,result=result))
     return result
+
+def listen(pattern, channels, q, stop_event):
+    # instantiate pubsub in function
+    # since to be called via thread
+    t_pubsub = r.pubsub()
+    for channel in channels:
+        t_pubsub.psubscribe(channel)
+    while(not stop_event.is_set()):
+        item = t_pubsub.get_message(timeout=5)
+        if item:
+            if fnmatch.fnmatch(str(item['data']), pattern):
+                q.put(str(item['data']))
