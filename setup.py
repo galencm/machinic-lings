@@ -26,6 +26,7 @@ name="lings",
                                         'lings-route-xml = lings.routes_xml:main',
                                         'lings-rule-add = lings.rules_add:main',
                                         'lings-rule-remove = lings.rules_remove:main',
+                                        'lings-state-xml = lings.states_xml:main',
                                         ],
                             },
 )
