@@ -201,7 +201,7 @@ def rpc_any(func, context, call_args):
             logger.info("trying service {}".format(service))
             print("tcp://{}:{}".format(service['ip'],service['port']))
             logger.info("call -> func: {} context: {} args: {}".format(func, context, call_args))
-            zc = zerorpc.Client()
+            zc = zerorpc.Client(timeout=1000, heartbeat=60)
             zc.connect("tcp://{}:{}".format(service['ip'],service['port']))
             result = zc(func, context, *call_args)
             if result is not None:
