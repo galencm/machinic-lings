@@ -1,0 +1,36 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+// 
+// Copyright (c) 2018, Galen Curwen-McAdams
+
+Ruleset:
+'ruleset' name=ID
+  '{' 
+    ruleblocks*=RuleBlock
+  '}'
+;
+
+RuleBlock:
+    rules*=Rule '->' category=ID ruling=STRING
+;
+
+Rule:
+    field=ID comparator=Comparator value=RuleValue 'and' | field=ID comparator=Comparator value=RuleValue
+;
+
+RuleValue:
+    valuetype=Type 
+;
+
+Type:
+    "int" | "str" | "roman" | Range | STRING
+;
+
+Range:
+    range_start=INT ',' range_end=INT
+;
+
+Comparator:
+    /==/|/~~/|'is'|'between'|'contains'
+;
