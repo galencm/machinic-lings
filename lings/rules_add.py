@@ -13,9 +13,10 @@ def main():
     Add rule
     """
     parser = argparse.ArgumentParser(description=main.__doc__,formatter_class=argparse.RawDescriptionHelpFormatter)
-    #parser.add_argument("rule", help="",required=False )
+    parser.add_argument("rule_name", default=None, nargs='?', help="",)
     parser.add_argument("--rule", required=False,help="string of rule enclosed in double quotes")
     parser.add_argument("-f","--file", required=False,help="file of rules 1 per line")
+    parser.add_argument("-x","--expire", type=int, default=0, required=False,help="temporary rule, expires after specified seconds")
 
     args = parser.parse_args()
 
@@ -29,6 +30,11 @@ def main():
                         print(ex)
     elif args.rule:
         try:
-            ruling.add_rule(args.rule)
+            ruling.add_rule(args.rule,expire=args.expire)
+        except Exception as ex:
+            print(ex)
+    elif args.rule_name is not None:
+        try:
+            ruling.add_rule("rule {} {{}}".format(args.rule_name),expire=args.expire)
         except Exception as ex:
             print(ex)
