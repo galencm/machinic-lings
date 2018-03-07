@@ -213,11 +213,61 @@ def get_rule(name, raw=False):
             return None
 
 def rule_xml2str(xml=None, raw=False):
-    # placeholder
-    # this needs to be generated when the rule
-    # model is defined so it can use the same
-    # processing as gsl
-    pass
+    # limitations:
+    #
+    #   currently works with single rule instead of
+    #   rules inside of a ruleset <ruleset name=> </ruleset>
+    #
+    #   ruleset name is either an attribute or hash of rule_string
+    #   if 'ruleset' attribute does not exist
+    #
+    #   also only uses a single parameter child
+    #
+    #   {result} is only quoted string in rule_string
+
+    # sample xml:
+    #   <rule source="chapter" destination="chapter" result="chapter1">
+    #       <parameter symbol="is" values="int" />
+    #   </rule>
+
+    # sample dsl:
+    #   ruleset bar {
+    #   method ~~ "slurp_gphoto2"
+    #   -> action "slurped"
+
+    #   chapter_ocr ~~ "Getting Started" 
+    #   -> chapter "chapter2"
+
+    #   page_num_ocr is int -> pagenumbering "numeral"
+
+    #   page_num_ocr between  1,12 -> chapter "chapter1"
+    #   }
+
+    xml_hash = hashlib.sha224(xml.encode()).hexdigest()
+    rule_xml = etree.fromstring(xml)
+    rule_attributes = {"source" : "",
+                       "symbol":"",
+                       "values":"",
+                       "destination":"",
+                       "result":""}
+    rule_attributes["source"] = rule_xml.get("source")
+    rule_attributes["destination"] = rule_xml.get("destination")
+    rule_attributes["result"] = rule_xml.get("result")
+    rule_attributes["ruleset"] = rule_xml.get("ruleset")
+    if rule_attributes["ruleset"] is None:
+        rule_attributes["ruleset"] = xml_hash
+    for child in rule_xml:
+        if child.tag == "parameter":
+            try:
+                rule_attributes["symbol"] = child.get("symbol")
+                rule_attributes["values"] = child.get("values")
+            except KeyError:
+                pass
+    rule_string = ""
+    rule_string += "ruleset {ruleset} {{\n".format(**rule_attributes)
+    rule_string += '{source} {symbol} {values} -> {destination} "{result}"\n'.format(**rule_attributes)
+    rule_string += "}"
+    return rule_string
 
 def rule_str2xml(dsl_string=None, name=None, raw=False, file=None):
     # placeholder
