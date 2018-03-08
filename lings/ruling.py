@@ -255,7 +255,8 @@ def rule_xml2str(xml=None, raw=False):
     rule_attributes["result"] = rule_xml.get("result")
     rule_attributes["ruleset"] = rule_xml.get("ruleset")
     if rule_attributes["ruleset"] is None:
-        rule_attributes["ruleset"] = xml_hash
+        # prepend sha with 'r' for textx metamodel ID
+        rule_attributes["ruleset"] = "r" + xml_hash
     for child in rule_xml:
         if child.tag == "parameter":
             try:
