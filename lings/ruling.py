@@ -166,7 +166,13 @@ def rule(name, glworb_key=None, glworb_dict=None, write_rulings=True):
                 local_results.append(False)
 
         if True in set(local_results) and len(set(local_results)) == 1:
+            logger.info("rule applies")
             rulings.update({ruleblock.category : ruleblock.ruling})
+            if write_rulings:
+                logger.info("added field:value -> {}:{}".format(ruleblock.category, ruleblock.ruling))
+                redis_conn.hmset(glworb_key, rulings)
+        else:
+            logger.info("rule does not apply")
 
     return rulings
 
