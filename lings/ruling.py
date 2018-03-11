@@ -119,8 +119,10 @@ def rule(name, glworb_key=None, glworb_dict=None, write_rulings=True):
         local_results = []
         for rule in ruleblock.rules:
             if rule.field in glworb:
-                field_value = glworb[rule.field]
+                # strip trailing newlines that often occur with ocr
+                field_value = glworb[rule.field].strip()
                 rule_value = rule.value.valuetype
+                logger.info("comparator: {} rule_value: {} field_value: {}".format(rule.comparator, rule_value, field_value))
                 if rule.comparator == '==':
                     if field_value == rule_value:
                         local_results.append(True)
