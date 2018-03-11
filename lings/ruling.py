@@ -11,6 +11,7 @@ import redis
 from logzero import logger
 from lxml import etree
 from textx.metamodel import metamodel_from_file
+import roman
 
 path = os.path.dirname(os.path.realpath(__file__))
 ruling_metamodel = metamodel_from_file(os.path.join(path, 'ruling.tx'))
@@ -140,12 +141,12 @@ def rule(name, glworb_key=None, glworb_dict=None, write_rulings=True):
                             local_results.append(True)
                         except:
                             local_results.append(False)
-                    # elif rule.value == "roman":
-                    #     try:
-                    #         roman(field_value)
-                    #         local_results.append('True')
-                    #     except:
-                    #         local_results.append('False')
+                    elif rule_value == "roman":
+                        try:
+                            roman.fromRoman(field_value.upper())
+                            local_results.append(True)
+                        except:
+                            local_results.append(False)
                     elif rule_value == "int":
                         try:
                             int(field_value)
