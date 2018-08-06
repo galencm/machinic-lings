@@ -293,3 +293,101 @@ def rule_str2xml(dsl_string=None, name=None, raw=False, file=None):
     # placeholder
     # revise gsl model xml for ruling
     pass
+
+def rule_offline(rule_string, glworb_dict=None):
+    # no db connection
+    # rule string and dict must be provided
+    # eventually rule function above should wrap this
+    # returns a dict of rulings
+    r = ruling_metamodel.model_from_str(rule_string)
+
+    glworb = {}
+
+    if glworb_dict:
+        glworb.update(glworb_dict)
+
+    rulings = {}
+
+    # brittle handling:
+    # for example: ~~ will not work on a range
+    # types are handled using elif rather than
+    # a more general method
+
+    for ruleblock in r.ruleblocks:
+        # each ruleblock will have to evaluate to true
+        # based on evaluation of its contained rules
+        local_results = []
+        for rule in ruleblock.rules:
+            if rule.field in glworb:
+                # strip trailing newlines that often occur with ocr
+                field_value = glworb[rule.field].strip()
+                rule_value = rule.value.valuetype
+                logger.info("comparator: {} rule_value: {} field_value: {}".format(rule.comparator, rule_value, field_value))
+                if rule.comparator == '==':
+                    if field_value == rule_value:
+                        local_results.append(True)
+                    else:
+                        local_results.append(False)
+                elif rule.comparator == '~~':
+                    if field_value.lower() == rule_value.lower():
+                        local_results.append(True)
+                    else:
+                        local_results.append(False)
+                elif rule.comparator == 'is':
+                    # more robust way is to try to coerce to type
+                    # from pydoc import locate
+                    # if type(field_value) == type(locate(rule.value))
+                    if rule_value == "str":
+                        try:
+                            str(field_value)
+                            local_results.append(True)
+                        except:
+                            local_results.append(False)
+                    elif rule_value == "roman":
+                        try:
+                            roman.fromRoman(field_value.upper())
+                            local_results.append(True)
+                        except:
+                            local_results.append(False)
+                    elif rule_value == "int":
+                        try:
+                            int(field_value)
+                            local_results.append(True)
+                        except:
+                            local_results.append(False)
+                elif rule.comparator == 'between':
+                    if rule_value.range_start <= int(field_value) < rule_value.range_end:
+                        local_results.append(True)
+                    else:
+                        local_results.append(False)
+                elif rule.comparator == 'between_incl':
+                    if rule_value.range_start <= int(field_value) <= rule_value.range_end:
+                        local_results.append(True)
+                    else:
+                        local_results.append(False)
+                elif rule.comparator == 'between_excl':
+                    if rule_value.range_start < int(field_value) < rule_value.range_end:
+                        local_results.append(True)
+                    else:
+                        local_results.append(False)
+                elif rule.comparator == 'contains':
+                    if field_value.lower() in rule_value.lower():
+                        local_results.append(True)
+                    else:
+                        local_results.append(False)
+            else:
+                local_results.append(False)
+
+        if True in set(local_results) and len(set(local_results)) == 1:
+            logger.info("rule applies")
+            if hasattr(ruleblock.ruling, "field"):
+                try:
+                    rulings.update({ruleblock.category : glworb_dict[ruleblock.ruling.field]})
+                except KeyError:
+                    pass
+            else:
+                rulings.update({ruleblock.category : ruleblock.ruling})
+        else:
+            logger.info("rule does not apply")
+
+    return rulings
