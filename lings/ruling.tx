@@ -12,7 +12,7 @@ Ruleset:
 ;
 
 RuleBlock:
-    rules*=Rule '->' category=ID ruling=STRING
+    rules*=Rule '->' category=ID ruling=RulingType
 ;
 
 Rule:
@@ -21,6 +21,14 @@ Rule:
 
 RuleValue:
     valuetype=Type 
+;
+
+RulingType:
+    STRING | Field | INT
+;
+
+Field:
+    field=ID
 ;
 
 Type:
