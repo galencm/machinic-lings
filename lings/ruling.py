@@ -156,6 +156,16 @@ def rule(name, glworb_key=None, glworb_dict=None, write_rulings=True):
                         except:
                             local_results.append(False)
                 elif rule.comparator == 'between':
+                    if rule_value.range_start <= int(field_value) < rule_value.range_end:
+                        local_results.append(True)
+                    else:
+                        local_results.append(False)
+                elif rule.comparator == 'between_incl':
+                    if rule_value.range_start <= int(field_value) <= rule_value.range_end:
+                        local_results.append(True)
+                    else:
+                        local_results.append(False)
+                elif rule.comparator == 'between_excl':
                     if rule_value.range_start < int(field_value) < rule_value.range_end:
                         local_results.append(True)
                     else:
