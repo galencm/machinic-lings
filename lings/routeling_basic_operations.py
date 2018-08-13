@@ -17,16 +17,19 @@ try:
 except Exception as ex:
     print(ex)
 
-
 def lookup(service):
-    c = consul.Consul()
-    services = {k:v for (k,v) in c.agent.services().items() if k.startswith("_nomad")}
-    for k in services.keys():
-        if services[k]['Service'] == service:
-                service_ip,service_port = services[k]['Address'],services[k]['Port']
-                return service_ip,service_port
-                break
-    return None,None
+    try:
+        c = consul.Consul()
+        services = {k:v for (k, v) in c.agent.services().items() if k.startswith("_nomad")}
+        for k in services.keys():
+            if services[k]['Service'] == service:
+                    service_ip,service_port = services[k]['Address'], services[k]['Port']
+                    return service_ip, service_port
+                    break
+        return None, None
+    except Exception as ex:
+        return None, None
+
 try:
     logzero.logfile("/tmp/{}.log".format(os.path.basename(sys.argv[0])))
 except Exception as ex:

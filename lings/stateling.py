@@ -9,14 +9,17 @@ import consul
 import redis
 
 def lookup(service):
-    c = consul.Consul()
-    services = {k:v for (k,v) in c.agent.services().items() if k.startswith("_nomad")}
-    for k in services.keys():
-        if services[k]['Service'] == service:
-                service_ip,service_port = services[k]['Address'],services[k]['Port']
-                return service_ip,service_port
-                break
-    return None,None
+    try:
+        c = consul.Consul()
+        services = {k:v for (k, v) in c.agent.services().items() if k.startswith("_nomad")}
+        for k in services.keys():
+            if services[k]['Service'] == service:
+                    service_ip,service_port = services[k]['Address'], services[k]['Port']
+                    return service_ip, service_port
+                    break
+        return None, None
+    except Exception as ex:
+        return None, None
 
 redis_ip,redis_port = lookup('redis')
 r = redis.StrictRedis(host=redis_ip, port=str(redis_port),decode_responses=True)

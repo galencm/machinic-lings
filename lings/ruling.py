@@ -17,14 +17,17 @@ path = os.path.dirname(os.path.realpath(__file__))
 ruling_metamodel = metamodel_from_file(os.path.join(path, 'ruling.tx'))
 
 def lookup(service):
-    c = consul.Consul()
-    services = {k:v for (k, v) in c.agent.services().items() if k.startswith("_nomad")}
-    for k in services.keys():
-        if services[k]['Service'] == service:
-                service_ip,service_port = services[k]['Address'], services[k]['Port']
-                return service_ip, service_port
-                break
-    return None, None
+    try:
+        c = consul.Consul()
+        services = {k:v for (k, v) in c.agent.services().items() if k.startswith("_nomad")}
+        for k in services.keys():
+            if services[k]['Service'] == service:
+                    service_ip,service_port = services[k]['Address'], services[k]['Port']
+                    return service_ip, service_port
+                    break
+        return None, None
+    except Exception as ex:
+        return None, None
 
 redis_ip, redis_port = lookup('redis')
 
@@ -299,6 +302,7 @@ def rule_offline(rule_string, glworb_dict=None):
     # rule string and dict must be provided
     # eventually rule function above should wrap this
     # returns a dict of rulings
+
     r = ruling_metamodel.model_from_str(rule_string)
 
     glworb = {}
