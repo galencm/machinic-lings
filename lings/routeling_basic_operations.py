@@ -43,8 +43,11 @@ r = redis.StrictRedis(host=redis_ip, port=str(redis_port),decode_responses=True)
 pubsub = r.pubsub()
 
 logger.debug("mqtt {}:{}".format(mqtt_ip,mqtt_port))
-cli = mosquitto.Client()
-cli.connect(mqtt_ip, mqtt_port, 60)
+try:
+    cli = mosquitto.Client()
+    cli.connect(mqtt_ip, mqtt_port, 60)
+except:
+    pass
 
 def sendi(channel,message):
     internal_to_internal(channel,message)
